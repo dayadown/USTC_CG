@@ -4,7 +4,10 @@
 using namespace std;
 
 PolynomialList::PolynomialList(const PolynomialList& other) {
-    // TODO
+    auto it = other.m_Polynomial.begin();
+    for (; it != other.m_Polynomial.end(); it++) {
+        AddOneTerm(Term(it->deg, it->cof));
+    }
 }
 
 PolynomialList::PolynomialList(const string& file) {
@@ -12,7 +15,9 @@ PolynomialList::PolynomialList(const string& file) {
 }
 
 PolynomialList::PolynomialList(const double* cof, const int* deg, int n) {
-    // TODO
+    for (int i = 0; i < n; i++) {
+        AddOneTerm(Term(*deg, *cof));
+    }
 }
 
 PolynomialList::PolynomialList(const vector<int>& deg, const vector<double>& cof) {
@@ -55,18 +60,23 @@ PolynomialList& PolynomialList::operator=(const PolynomialList& right) {
 }
 
 void PolynomialList::Print() const {
-    ///*
     if (m_Polynomial.empty()) {
         cout << "empty list!" << endl;
         return;
     }
     auto it = m_Polynomial.begin();
-    cout << it->cof << "x^" << it->deg;
+    if (it->deg == 0)
+        cout << it->cof;
+    else
+        cout << it->cof << "x^" << it->deg;
     it++;
     while (it != m_Polynomial.end()) {
         if (it->cof > 0)
             cout << "+";
-        cout << it->cof << "x^" << it->deg;
+        if (it->deg == 0)
+            cout << it->cof;
+        else
+            cout << it->cof << "x^" << it->deg;
         it++;
     }
     cout << endl;
@@ -95,5 +105,12 @@ bool PolynomialList::ReadFromFile(const string& file) {
 }
 
 void PolynomialList::AddOneTerm(const Term& term) {
+    auto it = m_Polynomial.begin();
+    for (; it != m_Polynomial.end(); it++) {
+        if (it->deg == term.deg) {
+            it->cof += term.cof;
+            return;
+        }
+    }
     m_Polynomial.push_back(term);
 }

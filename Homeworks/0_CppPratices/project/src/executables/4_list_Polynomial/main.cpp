@@ -6,7 +6,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-	PolynomialList p1("../data/P3.txt");
+	PolynomialList p1("../data/P1.txt");
 	//PolynomialList p2("../data/P5.txt");
 	//PolynomialList p3;
 	p1.Print();
