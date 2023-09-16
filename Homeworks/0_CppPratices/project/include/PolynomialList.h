@@ -45,7 +45,7 @@ private:
         Term() : Term(0, 0) { }
     };
     bool ReadFromFile(const std::string& file);
-    Term& AddOneTerm(const Term& term); // add one term into m_Polynomial
+    void AddOneTerm(const Term& term); // add one term into m_Polynomial
 
 private:
     std::list<Term> m_Polynomial; // high degree -> low degree

@@ -1,5 +1,6 @@
 #include "PolynomialList.h"
-
+#include<fstream>
+#include<iostream>
 using namespace std;
 
 PolynomialList::PolynomialList(const PolynomialList& other) {
@@ -7,7 +8,7 @@ PolynomialList::PolynomialList(const PolynomialList& other) {
 }
 
 PolynomialList::PolynomialList(const string& file) {
-    // TODO
+    ReadFromFile(file);
 }
 
 PolynomialList::PolynomialList(const double* cof, const int* deg, int n) {
@@ -54,16 +55,45 @@ PolynomialList& PolynomialList::operator=(const PolynomialList& right) {
 }
 
 void PolynomialList::Print() const {
-    // TODO
+    ///*
+    if (m_Polynomial.empty()) {
+        cout << "empty list!" << endl;
+        return;
+    }
+    auto it = m_Polynomial.begin();
+    cout << it->cof << "x^" << it->deg;
+    it++;
+    while (it != m_Polynomial.end()) {
+        if (it->cof > 0)
+            cout << "+";
+        cout << it->cof << "x^" << it->deg;
+        it++;
+    }
+    cout << endl;
 }
 
 bool PolynomialList::ReadFromFile(const string& file) {
-    // TODO
-    return false; // you should return a correct value
+    fstream ifs;
+    ifs.open(file, ios::in);
+    if (!ifs.is_open()) {
+        cout << "file open error!" << endl;
+        return false;
+    }
+    char temp;
+    int nSize = 0;
+    int deg = 0;
+    double cof = 0;
+    ifs >> temp;
+    ifs >> nSize;
+    for (int i = 0; i < nSize; i++) {
+        ifs >> deg;
+        ifs >> cof;
+        AddOneTerm(Term(deg, cof));
+    }
+    ifs.close();
+    return true;
 }
 
-PolynomialList::Term& PolynomialList::AddOneTerm(const Term& term) {
-    // TODO
-    static Term ERROR; // you should delete this line
-    return ERROR; // you should return a correct value
+void PolynomialList::AddOneTerm(const Term& term) {
+    m_Polynomial.push_back(term);
 }
