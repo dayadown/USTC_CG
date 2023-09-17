@@ -2,7 +2,7 @@
 #include<fstream>
 #include<iostream>
 using namespace std;
-
+#define EPSILON 1.0e-10
 PolynomialList::PolynomialList(const PolynomialList& other) {
     auto it = other.m_Polynomial.begin();
     for (; it != other.m_Polynomial.end(); it++) {
@@ -21,41 +21,62 @@ PolynomialList::PolynomialList(const double* cof, const int* deg, int n) {
 }
 
 PolynomialList::PolynomialList(const vector<int>& deg, const vector<double>& cof) {
-    // TODO
+    for (int i = 0; i < deg.size(); i++) {
+        AddOneTerm(Term(deg[i], cof[i]));
+    }
 }
 
 double PolynomialList::coff(int i) const {
-    // TODO
-    return 0.; // you should return a correct value
+    auto it = m_Polynomial.begin();
+    while (it != m_Polynomial.end()) {
+        if (it->deg == i) return it->cof;
+    }
+    return 0.;
 }
 
 double& PolynomialList::coff(int i) {
-    // TODO
-    static double ERROR; // you should delete this line
-    return ERROR; // you should return a correct value
+    return AddOneTerm(Term(i, 0)).cof;
 }
 
 void PolynomialList::compress() {
-    // TODO
+    auto itr = m_Polynomial.begin();
+    while (itr != m_Polynomial.end()) {
+        if (fabs((*itr).cof) < EPSILON)
+            itr = m_Polynomial.erase(itr);
+        else
+            itr++;
+    }
 }
 
 PolynomialList PolynomialList::operator+(const PolynomialList& right) const {
-    // TODO
-    return {}; // you should return a correct value
+    PolynomialList poly(*this);
+    for (auto term : right.m_Polynomial)
+        poly.AddOneTerm(term);
+    return poly;
+
 }
 
 PolynomialList PolynomialList::operator-(const PolynomialList& right) const {
-    // TODO
-    return {}; // you should return a correct value
+    PolynomialList poly(*this);
+    for (auto term : right.m_Polynomial)
+        poly.AddOneTerm(Term(term.deg, -term.cof));
+    return poly;
 }
 
 PolynomialList PolynomialList::operator*(const PolynomialList& right) const {
-    // TODO
-    return {}; // you should return a correct value
+    PolynomialList poly;
+    for (auto term1 : m_Polynomial) {
+        for (auto term2 : right.m_Polynomial) {
+            poly.AddOneTerm(Term(term1.deg * term2.deg, term1.cof * term2.cof));
+        }
+    }
+    return poly;
 }
 
 PolynomialList& PolynomialList::operator=(const PolynomialList& right) {
-    // TODO
+    for (auto term : right.m_Polynomial) {
+        AddOneTerm(term);
+    }
     return *this;
 }
 
@@ -65,18 +86,22 @@ void PolynomialList::Print() const {
         return;
     }
     auto it = m_Polynomial.begin();
-    if (it->deg == 0)
-        cout << it->cof;
-    else
-        cout << it->cof << "x^" << it->deg;
-    it++;
-    while (it != m_Polynomial.end()) {
-        if (it->cof > 0)
-            cout << "+";
+    if (it->cof != 0) {
         if (it->deg == 0)
             cout << it->cof;
         else
             cout << it->cof << "x^" << it->deg;
+    }
+    it++;
+    while (it != m_Polynomial.end()) {
+        if (it->cof != 0) {
+            if (it->cof > 0)
+                cout << "+";
+            if (it->deg == 0)
+                cout << it->cof;
+            else
+                cout << it->cof << "x^" << it->deg;
+        }
         it++;
     }
     cout << endl;
@@ -104,13 +129,15 @@ bool PolynomialList::ReadFromFile(const string& file) {
     return true;
 }
 
-void PolynomialList::AddOneTerm(const Term& term) {
+PolynomialList::Term& PolynomialList::AddOneTerm(const Term& term) {
     auto it = m_Polynomial.begin();
     for (; it != m_Polynomial.end(); it++) {
         if (it->deg == term.deg) {
             it->cof += term.cof;
-            return;
+            return *it;
         }
+        if (term.deg > it->deg)
+            break;
     }
-    m_Polynomial.push_back(term);
+    return *m_Polynomial.insert(it,term);
 }
