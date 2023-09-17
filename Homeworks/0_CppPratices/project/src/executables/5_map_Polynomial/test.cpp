@@ -28,12 +28,12 @@ int main(int argc, char** argv) {
     generateTestCase(5, deg0, cof0);
     generateTestCase(5, deg1, cof1);
     cout << "Test List:" << endl;
-    testList.testOperationFromGivenData(deg0, cof0, deg0, cof1, true);
+    testList.testOperationFromGivenData(deg0, cof0, deg0, cof1);
     cout << "Test Map: " << endl;
-    testMap.testOperationFromGivenData(deg0, cof0, deg0, cof1, true);
+    testMap.testOperationFromGivenData(deg0, cof0, deg0, cof1);
 
-    generateTestCase(100, deg0, cof0);
-    generateTestCase(100, deg1, cof1);
+    generateTestCase(40, deg0, cof0);
+    generateTestCase(40, deg1, cof1);
     cout << "Test List:" << endl;
     testList.testOperationFromGivenData(deg0, cof0, deg1, cof1);
     cout << "Test Map: " << endl;

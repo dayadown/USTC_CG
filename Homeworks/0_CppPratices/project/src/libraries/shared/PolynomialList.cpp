@@ -86,13 +86,17 @@ void PolynomialList::Print() const {
         return;
     }
     auto it = m_Polynomial.begin();
-    if (it->cof != 0) {
+    while(it->cof == 0&&it!=m_Polynomial.end())
+        it++;
+    if (it == m_Polynomial.end())
+        return;
+    else {
         if (it->deg == 0)
             cout << it->cof;
         else
             cout << it->cof << "x^" << it->deg;
+        it++;
     }
-    it++;
     while (it != m_Polynomial.end()) {
         if (it->cof != 0) {
             if (it->cof > 0)
