@@ -1,13 +1,13 @@
 #include "Ellipse.h"
 
-Ellipse::Ellipse() {
+mEllipse::mEllipse() {
 
 }
 
-Ellipse::~Ellipse() {
+mEllipse::~mEllipse() {
 
 }
 
-void Ellipse::Draw(QPainter& painter) {
+void mEllipse::Draw(QPainter& painter) {
 	painter.drawEllipse(start.x(),start.y(),end.x()-start.x(), end.y() - start.y());
 }

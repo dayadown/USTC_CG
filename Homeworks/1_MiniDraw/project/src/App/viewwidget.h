@@ -45,5 +45,4 @@ public slots:
 	void setLine();
 	void setRect();
 	void setEllipse();
-
 };
