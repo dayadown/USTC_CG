@@ -20,6 +20,7 @@ public:
 	QAction* Action_Rect;
 	QAction* Action_Ellipse;
 	QAction* Action_Polygon;
+	QAction* Action_Freehand;
 
 	void Creat_Menu();
 	void Creat_ToolBar();

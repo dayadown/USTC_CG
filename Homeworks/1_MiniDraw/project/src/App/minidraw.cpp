@@ -29,6 +29,9 @@ void MiniDraw::Creat_Action() {
 
 	Action_Polygon = new QAction(tr("&Polygon"), this);
 	connect(Action_Polygon, SIGNAL(triggered()), view_widget_, SLOT(setPolygon()));
+
+	Action_Freehand = new QAction(tr("&Freehand"), this);
+	connect(Action_Freehand, SIGNAL(triggered()), view_widget_, SLOT(setFreehand()));
 }
 
 void MiniDraw::Creat_ToolBar() {
@@ -38,6 +41,8 @@ void MiniDraw::Creat_ToolBar() {
 	pToolBar->addAction(Action_Rect);
 	pToolBar->addAction(Action_Ellipse);
 	pToolBar->addAction(Action_Polygon);
+	pToolBar->addAction(Action_Freehand);
+
 
 }
 
@@ -48,6 +53,8 @@ void MiniDraw::Creat_Menu() {
 	pMenu->addAction(Action_Rect);
 	pMenu->addAction(Action_Ellipse);
 	pMenu->addAction(Action_Polygon);
+	pMenu->addAction(Action_Freehand);
+
 
 }
 

@@ -19,6 +19,7 @@ public:
 		kRect = 2,
 		kEllipse = 3,
 		kPolygon = 4,
+		kFreehand = 5,
 	};
 
 protected:

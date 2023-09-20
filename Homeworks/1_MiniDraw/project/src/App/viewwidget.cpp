@@ -32,6 +32,12 @@ void ViewWidget::setEllipse()
 {
 	type_ = Shape::kEllipse;
 }
+
+void ViewWidget::setFreehand() 
+{
+	type_ = Shape::kFreehand;
+}
+
 void ViewWidget::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
@@ -58,11 +64,15 @@ void ViewWidget::mousePressEvent(QMouseEvent* event)
 				shape_ = new mPolygon();
 				setMouseTracking(true);
 				break;
+
+			case Shape::kFreehand:
+				shape_ = new Freehand();
+				break;
 			}
 			if (shape_ != NULL)
 			{
 				draw_status_ = true;
-				if (!get_start_point) {
+				if (!get_start_point&&type_==Shape::kPolygon) {
 					start_point = event->pos();
 					get_start_point = true;
 				}
@@ -88,8 +98,20 @@ void ViewWidget::mouseMoveEvent(QMouseEvent* event)
 {
 	if (draw_status_ && shape_ != NULL)
 	{
-		end_point_ = event->pos();
-		shape_->set_end(end_point_);
+		if (type_ != Shape::kFreehand)
+		{
+			end_point_ = event->pos();
+			shape_->set_end(end_point_);
+		}
+		else
+		{
+			end_point_ = event->pos();
+			Freehand *shape1_=new Freehand;
+			shape1_->set_start(start_point_);
+			shape1_->set_end(end_point_);
+			shape_list_.push_back(shape1_);
+			start_point_ = end_point_;
+		}
 	}
 }
 

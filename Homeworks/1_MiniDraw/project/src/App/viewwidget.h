@@ -7,6 +7,7 @@
 #include "Rect.h"
 #include "Ellipse.h"
 #include "Polygon.h"
+#include "Freehand.h"
 
 #include <qevent.h>
 #include <qpainter.h>
@@ -21,7 +22,6 @@ class ViewWidget : public QWidget
 public:
 	ViewWidget(QWidget* parent = 0);
 	~ViewWidget();
-
 private:
 	Ui::ViewWidget ui;
 
@@ -49,4 +49,5 @@ public slots:
 	void setRect();
 	void setEllipse();
 	void setPolygon();
+	void setFreehand();
 };
