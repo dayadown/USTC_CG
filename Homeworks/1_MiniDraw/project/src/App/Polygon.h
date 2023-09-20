@@ -1,9 +1,9 @@
 #pragma once
 #include "shape.h"
-class Polygon :public Shape {
+class mPolygon :public Shape {
 public:
-	Polygon() {};
-	~Polygon() {};
+	mPolygon() {};
+	~mPolygon() {};
 
 	void Draw(QPainter& painter);
 };

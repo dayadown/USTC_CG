@@ -6,6 +6,7 @@
 #include "Line.h"
 #include "Rect.h"
 #include "Ellipse.h"
+#include "Polygon.h"
 
 #include <qevent.h>
 #include <qpainter.h>
@@ -26,6 +27,8 @@ private:
 
 private:
 	bool draw_status_;
+	bool get_start_point = 0;
+	QPoint start_point;
 	QPoint start_point_;
 	QPoint end_point_;
 	Shape::Type type_;
@@ -45,4 +48,5 @@ public slots:
 	void setLine();
 	void setRect();
 	void setEllipse();
+	void setPolygon();
 };

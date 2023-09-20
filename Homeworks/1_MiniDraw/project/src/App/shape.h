@@ -18,6 +18,7 @@ public:
 		kLine = 1,
 		kRect = 2,
 		kEllipse = 3,
+		kPolygon = 4,
 	};
 
 protected:

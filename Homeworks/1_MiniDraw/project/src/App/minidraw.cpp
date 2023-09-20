@@ -26,6 +26,9 @@ void MiniDraw::Creat_Action() {
 
 	Action_Ellipse = new QAction(tr("&Ellipse"), this);
 	connect(Action_Ellipse, SIGNAL(triggered()), view_widget_, SLOT(setEllipse()));
+
+	Action_Polygon = new QAction(tr("&Polygon"), this);
+	connect(Action_Polygon, SIGNAL(triggered()), view_widget_, SLOT(setPolygon()));
 }
 
 void MiniDraw::Creat_ToolBar() {
@@ -34,6 +37,8 @@ void MiniDraw::Creat_ToolBar() {
 	pToolBar->addAction(Action_Line);
 	pToolBar->addAction(Action_Rect);
 	pToolBar->addAction(Action_Ellipse);
+	pToolBar->addAction(Action_Polygon);
+
 }
 
 void MiniDraw::Creat_Menu() {
@@ -42,6 +47,8 @@ void MiniDraw::Creat_Menu() {
 	pMenu->addAction(Action_Line);
 	pMenu->addAction(Action_Rect);
 	pMenu->addAction(Action_Ellipse);
+	pMenu->addAction(Action_Polygon);
+
 }
 
 void MiniDraw::AboutBox() {
