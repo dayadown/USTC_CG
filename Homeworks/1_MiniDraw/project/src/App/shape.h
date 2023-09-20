@@ -7,7 +7,7 @@ class Shape
 public:
 	Shape();
 	virtual ~Shape();
-	virtual void Draw(QPainter& paint) = 0;
+	virtual void Draw(QPainter& paint) = 0;  //´¿Ðéº¯Êý£¬±ØÐëÖØÐ´
 	void set_start(QPoint s);
 	void set_end(QPoint e);
 
@@ -17,6 +17,7 @@ public:
 		kDefault = 0,
 		kLine = 1,
 		kRect = 2,
+		kEllipse = 3,
 	};
 
 protected:

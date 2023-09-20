@@ -22,7 +22,10 @@ void ViewWidget::setRect()
 {
 	type_ = Shape::kRect;
 }
-
+void ViewWidget::setEllipse()
+{
+	type_ = Shape::kEllipse;
+}
 void ViewWidget::mousePressEvent(QMouseEvent* event)
 {
 	if (Qt::LeftButton == event->button())
@@ -37,6 +40,10 @@ void ViewWidget::mousePressEvent(QMouseEvent* event)
 
 		case Shape::kRect:
 			shape_ = new Rect();
+			break;
+
+		case Shape::kEllipse:
+			shape_ = new Ellipse();
 			break;
 		}
 		if (shape_ != NULL)
