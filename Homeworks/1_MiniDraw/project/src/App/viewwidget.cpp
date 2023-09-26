@@ -103,6 +103,7 @@ void ViewWidget::mouseMoveEvent(QMouseEvent* event)
 			end_point_ = event->pos();
 			shape_->set_end(end_point_);
 		}
+
 		else
 		{
 			end_point_ = event->pos();
