@@ -11,6 +11,7 @@ ImageWidget::ImageWidget(void)
 {
 	ptr_image_ = new QImage();
 	ptr_image_backup_ = new QImage();
+	draw = false;
 }
 
 
@@ -30,7 +31,14 @@ void ImageWidget::paintEvent(QPaintEvent *paintevent)
 
 	// Draw image
 	QRect rect = QRect( (width()-ptr_image_->width())/2, (height()-ptr_image_->height())/2, ptr_image_->width(), ptr_image_->height());
-	painter.drawImage(rect, *ptr_image_); 
+	painter.drawImage(rect, *ptr_image_);
+
+	if (draw) {
+		for (int i = 0; i < Lines.size(); i++) {
+			painter.drawLine(Lines[i].start, Lines[i].end);
+		}
+		painter.drawLine(line.start, line.end);
+	}
 
 	painter.end();
 }
@@ -43,10 +51,9 @@ void ImageWidget::Open()
 	// Load file
 	if (!fileName.isEmpty())
 	{
-		ptr_image_->load(fileName);
+		if (!ptr_image_->load(fileName)) cout << "error to open!";
 		*(ptr_image_backup_) = *(ptr_image_);
 	}
-
 	//ptr_image_->invertPixels(QImage::InvertRgb);
 	//*(ptr_image_) = ptr_image_->mirrored(true, true);
 	//*(ptr_image_) = ptr_image_->rgbSwapped();
@@ -150,8 +157,67 @@ void ImageWidget::TurnGray()
 	update();
 }
 
+
+void ImageWidget::mousePressEvent(QMouseEvent* event) {
+	if (draw) {
+		if (event->button() == Qt::LeftButton)
+			line.start = line.end = event->pos();
+		else
+			Warping();
+	}
+}
+
+void ImageWidget::mouseMoveEvent(QMouseEvent* event) {
+	if (draw) {
+		line.end = event->pos();
+		update();
+	}
+}
+
+void ImageWidget::mouseReleaseEvent(QMouseEvent* event) {
+	if (draw) {
+		struct Line p;
+		p.start = line.start;
+		p.end = line.end;
+		Lines.push_back(p);
+		update();
+	}
+}
+
+void ImageWidget::Warping() {
+	switch (_wtype)
+	{
+	case 0:
+		warp = new IDW_Warping(ptr_image_);
+		break;
+	case 1:
+		warp = new RBF_Warping(ptr_image_);
+		break;
+	default:
+		break;
+	}
+	for (auto i = Lines.begin(); i != Lines.end(); i++) {
+		warp->Lines.push_back(*i);
+	}
+	warp->startwarp();
+	cout << "warp compelet!";
+}
+
+
 void ImageWidget::Restore()
 {
 	*(ptr_image_) = *(ptr_image_backup_);
 	update();
+}
+
+void ImageWidget::settoIDW() {
+	_wtype = warping_type::IDW;
+}
+
+void ImageWidget::settoRBF() {
+	_wtype = warping_type::RBF;
+}
+
+void ImageWidget::warping_flag() {
+	draw = true;
 }

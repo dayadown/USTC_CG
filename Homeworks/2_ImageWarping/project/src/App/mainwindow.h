@@ -3,6 +3,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_mainwindow.h"
+#include "ImageWarping.h"
 
 QT_BEGIN_NAMESPACE
 	class QAction;
@@ -49,6 +50,8 @@ private:
 	QAction		*action_invert_;
 	QAction		*action_mirror_;
 	QAction		*action_gray_;
+	QAction		*action_IDW_;
+	QAction		*action_RBF_;
 	QAction		*action_restore_;
 
 	ImageWidget		*imagewidget_;

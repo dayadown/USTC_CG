@@ -3,6 +3,7 @@
 #include <QImage>
 #include <QPainter>
 #include "ImageWidget.h"
+#include "ImageWarping.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -42,6 +43,7 @@ void MainWindow::CreateActions()
 	action_new_->setShortcut(QKeySequence::New);
 	action_new_->setStatusTip(tr("Create a new file"));
 	// connect ...
+	//connect(action_new_, &QAction::triggered, imagewidget_, &ImageWidget::paintEvent);
 
 	action_open_ = new QAction(QIcon(":/MainWindow/Resources/images/open.jpg"), tr("&Open..."), this);
 	action_open_->setShortcuts(QKeySequence::Open);
@@ -74,6 +76,17 @@ void MainWindow::CreateActions()
 	action_gray_->setStatusTip(tr("Gray-scale map"));
 	connect(action_gray_, &QAction::triggered, imagewidget_, &ImageWidget::TurnGray);
 
+	action_IDW_ = new QAction(tr("IDW"), this);
+	action_IDW_->setStatusTip(tr("Image Warping with IDW method"));
+	connect(action_IDW_, &QAction::triggered, imagewidget_, &ImageWidget::settoIDW);
+	connect(action_IDW_, &QAction::triggered, imagewidget_, &ImageWidget::warping_flag);
+
+
+	action_RBF_ = new QAction(tr("RBF"), this);
+	action_RBF_->setStatusTip(tr("Image Warping with RBF method"));
+	connect(action_RBF_, &QAction::triggered, imagewidget_, &ImageWidget::settoRBF);
+	connect(action_IDW_, &QAction::triggered, imagewidget_, &ImageWidget::warping_flag);
+
 	action_restore_ = new QAction(tr("Restore"), this);
 	action_restore_->setStatusTip(tr("Show origin image"));
 	connect(action_restore_, &QAction::triggered, imagewidget_, &ImageWidget::Restore);
@@ -93,6 +106,8 @@ void MainWindow::CreateMenus()
 	menu_edit_->addAction(action_invert_);
 	menu_edit_->addAction(action_mirror_);
 	menu_edit_->addAction(action_gray_);
+	menu_edit_->addAction(action_IDW_);
+	menu_edit_->addAction(action_RBF_);
 	menu_edit_->addAction(action_restore_);
 }
 
@@ -108,10 +123,14 @@ void MainWindow::CreateToolBars()
 	toolbar_file_->addAction(action_invert_);
 	toolbar_file_->addAction(action_mirror_);
 	toolbar_file_->addAction(action_gray_);
+	toolbar_file_->addAction(action_IDW_);
+	toolbar_file_->addAction(action_RBF_);
 	toolbar_file_->addAction(action_restore_);
+
 }
 
 void MainWindow::CreateStatusBar()
 {
 	statusBar()->showMessage(tr("Ready"));
 }
+
