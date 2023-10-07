@@ -22,6 +22,7 @@ ImageWidget::~ImageWidget(void)
 void ImageWidget::paintEvent(QPaintEvent *paintevent)
 {
 	QPainter painter;
+
 	painter.begin(this);
 
 	// Draw background
@@ -33,6 +34,11 @@ void ImageWidget::paintEvent(QPaintEvent *paintevent)
 	QRect rect = QRect( (width()-ptr_image_->width())/2, (height()-ptr_image_->height())/2, ptr_image_->width(), ptr_image_->height());
 	painter.drawImage(rect, *ptr_image_);
 
+
+	QPen pen;
+	pen.setColor(qRgb(255,0,0));
+	pen.setWidth(5);
+	painter.setPen(pen);
 	if (draw) {
 		for (int i = 0; i < Lines.size(); i++) {
 			painter.drawLine(Lines[i].start, Lines[i].end);
