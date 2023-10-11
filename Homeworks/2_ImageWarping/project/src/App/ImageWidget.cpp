@@ -37,7 +37,7 @@ void ImageWidget::paintEvent(QPaintEvent *paintevent)
 
 	QPen pen;
 	pen.setColor(qRgb(255,0,0));
-	pen.setWidth(5);
+	pen.setWidth(3);
 	painter.setPen(pen);
 	if (draw) {
 		for (int i = 0; i < Lines.size(); i++) {
@@ -186,6 +186,10 @@ void ImageWidget::mouseReleaseEvent(QMouseEvent* event) {
 		p.start = line.start;
 		p.end = line.end;
 		Lines.push_back(p);
+		p.start = QPoint(p.start.x() - (width() - ptr_image_->width()) / 2, p.start.y()-(height() - ptr_image_->height()) / 2);
+		p.end = QPoint(p.end.x() - (width() - ptr_image_->width()) / 2, p.end.y()- (height() - ptr_image_->height()) / 2);
+		//cout << p.start.x() << "," << p.start.y()<<"  "<<p.end.x()<<"," << p.end.y() << endl;
+		imag_Lines.push_back(p);
 		update();
 	}
 }
@@ -202,10 +206,12 @@ void ImageWidget::Warping() {
 	default:
 		break;
 	}
-	for (auto i = Lines.begin(); i != Lines.end(); i++) {
+	for (auto i = imag_Lines.begin(); i != imag_Lines.end(); i++) {
 		warp->Lines.push_back(*i);
 	}
 	warp->startwarp();
+	Lines.clear();
+	line.start = line.end = QPoint();
 	cout << "warp compelet!";
 }
 

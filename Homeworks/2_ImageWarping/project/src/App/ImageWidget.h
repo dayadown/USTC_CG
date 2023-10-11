@@ -58,5 +58,6 @@ private:
 	bool draw;
 	struct Line line;
 	std::vector<struct Line> Lines;
+	std::vector<struct Line> imag_Lines;
 };
 
