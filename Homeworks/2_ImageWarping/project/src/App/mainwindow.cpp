@@ -85,7 +85,7 @@ void MainWindow::CreateActions()
 	action_RBF_ = new QAction(tr("RBF"), this);
 	action_RBF_->setStatusTip(tr("Image Warping with RBF method"));
 	connect(action_RBF_, &QAction::triggered, imagewidget_, &ImageWidget::settoRBF);
-	connect(action_IDW_, &QAction::triggered, imagewidget_, &ImageWidget::warping_flag);
+	connect(action_RBF_, &QAction::triggered, imagewidget_, &ImageWidget::warping_flag);
 
 	action_restore_ = new QAction(tr("Restore"), this);
 	action_restore_->setStatusTip(tr("Show origin image"));
