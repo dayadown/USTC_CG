@@ -204,6 +204,7 @@ void ImageWidget::mouseReleaseEvent(QMouseEvent* mouseevent)
 	case kPaste:
 		if (is_pasting_)
 		{
+			*(image_backup_) = *(image_);
 			is_pasting_ = false;
 			draw_status_ = kNone;
 			int w = source_window_->imagewidget_->point_end_.rx()
