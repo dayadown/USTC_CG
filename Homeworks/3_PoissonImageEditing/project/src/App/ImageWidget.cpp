@@ -1,12 +1,8 @@
 #include "ImageWidget.h"
-#include <QImage>
-#include <QPainter>
-#include <QtWidgets> 
-#include <iostream>
-#include "ChildWindow.h"
 
 using std::cout;
 using std::endl;
+
 
 ImageWidget::ImageWidget(ChildWindow* relatewindow)
 {
@@ -133,6 +129,9 @@ void ImageWidget::mousePressEvent(QMouseEvent* mouseevent)
 			break;
 		}
 	}
+	else {
+		Seamless_cloning();
+	}
 }
 
 void ImageWidget::mouseMoveEvent(QMouseEvent* mouseevent)
@@ -154,6 +153,7 @@ void ImageWidget::mouseMoveEvent(QMouseEvent* mouseevent)
 			// Start point in object image
 			int xpos = mouseevent->pos().rx();
 			int ypos = mouseevent->pos().ry();
+			//std::cout << xpos << " " << ypos << endl;
 
 			// Start point in source image
 			int xsourcepos = source_window_->imagewidget_->point_start_.rx();
@@ -206,6 +206,28 @@ void ImageWidget::mouseReleaseEvent(QMouseEvent* mouseevent)
 		{
 			is_pasting_ = false;
 			draw_status_ = kNone;
+			int w = source_window_->imagewidget_->point_end_.rx()
+				- source_window_->imagewidget_->point_start_.rx() + 1;
+			int h = source_window_->imagewidget_->point_end_.ry()
+				- source_window_->imagewidget_->point_start_.ry() + 1;
+			struct in_image new_in_image(mouseevent->pos(), w, h);
+			int left_x = source_window_->imagewidget_->point_start_.rx() - 1;
+			int right_x = source_window_->imagewidget_->point_end_.rx() + 1;
+			for (int i = 0; i < h; i++) {
+				int y = source_window_->imagewidget_->point_start_.y();
+				y = y + i;
+				new_in_image.left_bound.push_back(source_window_->imagewidget_->image_->pixel(left_x, y));
+				new_in_image.right_bound.push_back(source_window_->imagewidget_->image_->pixel(right_x, y));
+			}
+			int up_y = source_window_->imagewidget_->point_start_.ry() - 1;
+			int down_y = source_window_->imagewidget_->point_end_.ry() + 1;
+			for (int i = 0; i < w; i++) {
+				int x = source_window_->imagewidget_->point_start_.x();
+				x = x + i;
+				new_in_image.up_bound.push_back(source_window_->imagewidget_->image_->pixel(x, up_y));
+				new_in_image.down_bound.push_back(source_window_->imagewidget_->image_->pixel(x, down_y));
+			}
+			in_images.push_back(new_in_image);
 		}
 
 	default:
@@ -337,4 +359,140 @@ void ImageWidget::Restore()
 	*(image_) = *(image_backup_);
 	point_start_ = point_end_ = QPoint(0, 0);
 	update();
+}
+
+
+void ImageWidget::Seamless_cloning() {
+	for (auto it = in_images.begin(); it != in_images.end(); it++) {
+		int w = it->with;
+		int h = it->height;
+		Eigen::VectorXd sourse_san_r = get_san(it, 0);
+		Eigen::VectorXd sourse_san_g = get_san(it, 1);
+		Eigen::VectorXd sourse_san_b = get_san(it, 2);
+		int n = w * h;
+		std::vector<T> tripletlist_r;
+		std::vector<T> tripletlist_g;
+		std::vector<T> tripletlist_b;
+		SparseMatrixType sparse_r(n, n);
+		SparseMatrixType sparse_b(n, n);
+		SparseMatrixType sparse_g(n, n);
+		int xx = it->start.x();
+		int yy = it->start.y();
+		int x, y;
+		int up_boundary = yy;
+		int down_boundary = yy + h-1;
+		int left_boundary = xx;
+		int right_boundary = xx + w - 1; 
+		for (int i = 0; i < h; i++) {
+			for (int j = 0; j < w; j++) {
+				int index = get_index(i, j, w, h);
+				tripletlist_r.push_back(T(index, index, -4));
+				tripletlist_g.push_back(T(index, index, -4));
+				tripletlist_b.push_back(T(index, index, -4));
+				x = xx + j;
+				y = yy + i;
+				QPoint points[4] = { QPoint(x ,y - 1),QPoint(x ,y + 1) ,QPoint(x - 1,y) ,QPoint(x + 1,y) };
+				for (int k = 0; k < 4; k++) {
+					if (points[k].x() < left_boundary || points[k].x() > right_boundary || points[k].y() < up_boundary || points[k].y() > down_boundary) {
+						sourse_san_r(index) -= qRed(image_->pixel(points[k]));
+						sourse_san_g(index) -= qGreen(image_->pixel(points[k]));
+						sourse_san_b(index) -= qBlue(image_->pixel(points[k]));
+					}
+					else {
+						int index_i = get_index(points[k].y() - yy, points[k].x()-xx, w, h);
+						tripletlist_r.push_back(T(index, index_i, 1));
+						tripletlist_g.push_back(T(index, index_i, 1));
+						tripletlist_b.push_back(T(index, index_i, 1));
+					}
+				}
+			}
+		}
+
+		Eigen::VectorXd result_r;
+		Eigen::VectorXd result_g;
+		Eigen::VectorXd result_b;
+		sparse_r.setFromTriplets(tripletlist_r.begin(), tripletlist_r.end());
+		sparse_r.makeCompressed();
+		sparse_g.setFromTriplets(tripletlist_g.begin(), tripletlist_g.end());
+		sparse_g.makeCompressed();
+		sparse_b.setFromTriplets(tripletlist_b.begin(), tripletlist_b.end());
+		sparse_b.makeCompressed();
+		Solve* p_r = new Solve(sparse_r);
+		Solve* p_g = new Solve(sparse_g);
+		Solve* p_b = new Solve(sparse_b);
+		result_r = p_r->solve(sourse_san_r);
+		result_g = p_g->solve(sourse_san_g);
+		result_b = p_b->solve(sourse_san_b);
+		for (int i = 0; i < n; i++) {
+			int now_y = i / w;
+			int now_x = i % w;
+			now_x += xx;
+			now_y += yy;
+			image_->setPixel(now_x, now_y, qRgb(result_r(i) > 255 ? 255 : (result_r(i) < 0 ? 0 : result_r(i)),
+												result_g(i) > 255 ? 255 : (result_g(i) < 0 ? 0 : result_g(i)),
+												result_b(i) > 255 ? 255 : (result_b(i) < 0 ? 0 : result_b(i))));
+		}
+	}
+}
+
+Eigen::MatrixXd ImageWidget::get_san(std::vector<in_image>::iterator it, int k) {
+	int w = it->with;
+	int h = it->height;
+	Eigen::VectorXd san(h*w);
+	int xx = it->start.x();
+	int yy = it->start.y();
+	int x, y;
+	int up_boundary = yy;
+	int down_boundary = yy + h - 1;
+	int left_boundary = xx;
+	int right_boundary = xx + w - 1;
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) {
+			x = xx + j;
+			y = yy + i;
+			QPoint points[4] = { QPoint(x, y - 1),QPoint(x, y + 1) ,QPoint(x - 1, y) ,QPoint(x + 1, y) };
+			int rgb[4][3];
+			for (int z = 0; z < 4; z++) {
+				if (points[z].x() < left_boundary || points[z].x() > right_boundary || points[z].y() < up_boundary || points[z].y() > down_boundary) {
+					switch (z)
+					{
+					case 0:
+						rgb[z][0] = qRed(it->up_bound[j]);
+						rgb[z][1] = qGreen(it->up_bound[j]);
+						rgb[z][2] = qBlue(it->up_bound[j]);
+						break;
+					case 1:
+						rgb[z][0] = qRed(it->down_bound[j]);
+						rgb[z][1] = qGreen(it->down_bound[j]);
+						rgb[z][2] = qBlue(it->down_bound[j]);
+						break;
+					case 2:
+						rgb[z][0] = qRed(it->left_bound[i]);
+						rgb[z][1] = qGreen(it->left_bound[i]);
+						rgb[z][2] = qBlue(it->left_bound[i]);
+						break;
+					case 3:
+						rgb[z][0] = qRed(it->right_bound[i]);
+						rgb[z][1] = qGreen(it->right_bound[i]);
+						rgb[z][2] = qBlue(it->right_bound[i]);
+						break;
+					default:
+						break;
+					}
+				}
+				else {
+					rgb[z][0] = qRed(image_->pixel(points[z]));
+					rgb[z][1] = qGreen(image_->pixel(points[z]));
+					rgb[z][2] = qBlue(image_->pixel(points[z]));
+				}
+			}
+			int now_rgb[3] = { qRed(image_->pixel(QPoint(x,y))),qGreen(image_->pixel(QPoint(x,y))),qBlue(image_->pixel(QPoint(x,y))) };
+			san(get_index(i,j, w, h)) = double(rgb[0][k])+ double(rgb[1][k]) + double(rgb[2][k]) + double(rgb[3][k])  - double(4 * now_rgb[k]);
+		}
+	}
+	return san;
+}
+
+int ImageWidget::get_index(int x, int y,int w,int h) {
+	return x * w + y;
 }

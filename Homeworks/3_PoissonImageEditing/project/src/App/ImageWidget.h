@@ -1,17 +1,41 @@
 #pragma once
 #include <QWidget>
-
+#include <vector>
+#include <Eigen/Core>
+#include<Eigen/Sparse>
+#include <QImage>
+#include <QPainter>
+#include <QtWidgets> 
+#include <iostream>
+#include "ChildWindow.h"
 class ChildWindow;
 QT_BEGIN_NAMESPACE
 class QImage;
 class QPainter;
 QT_END_NAMESPACE
 
+typedef Eigen::SparseMatrix<double> SparseMatrixType;
+typedef Eigen::Triplet<double> T;
+typedef Eigen::SimplicialCholesky<SparseMatrixType> Solve;
+
 enum DrawStatus
 {
 	kChoose, 
 	kPaste, 
 	kNone
+};
+
+struct in_image {
+	QPoint start;
+	int with;
+	int height;
+	//std::vector<QPoint> B_points;
+	in_image(QPoint a,int b,int c):
+		start(a),with(b),height(c){}
+	std::vector<QRgb> up_bound;
+	std::vector<QRgb> down_bound;
+	std::vector<QRgb> left_bound;
+	std::vector<QRgb> right_bound;
 };
 
 class ImageWidget :
@@ -63,5 +87,14 @@ private:
 	DrawStatus					draw_status_;					// Enum type of draw status
 	bool						is_choosing_;
 	bool						is_pasting_;
+
+
+	//poisson
+private:
+	std::vector<in_image> in_images;
+public:
+	void Seamless_cloning();
+	Eigen::MatrixXd get_san(std::vector<in_image>::iterator, int);
+	int get_index(int, int, int, int);
 };
 
