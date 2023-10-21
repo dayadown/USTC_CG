@@ -3,6 +3,7 @@
 #include <Basic/HeapObj.h>
 #include <UHEMesh/HEMesh.h>
 #include <UGM/UGM>
+#include <Eigen/Sparse>
 
 namespace Ubpa {
 	class TriMesh;

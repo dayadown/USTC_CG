@@ -18,6 +18,8 @@
 x64/
 x86/
 bld/
+eigen3.3.7/
+Ubpa/
 [Bb]in/
 [Oo]bj/
 [Ll]og/

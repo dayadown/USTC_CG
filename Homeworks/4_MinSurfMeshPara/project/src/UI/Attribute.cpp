@@ -360,7 +360,7 @@ void Attribute::ComponentVisitor::ImplVisit(Ptr<TriMesh> mesh) {
 
 	grid->AddButton("Minimize Surface", [mesh, pOGLW = attr->pOGLW]() {
 		auto minSurf = MinSurf::New(mesh);
-		minSurf->Run();
+		minSurf->Run(); 
 		pOGLW->DirtyVAO(mesh);
 	});
 

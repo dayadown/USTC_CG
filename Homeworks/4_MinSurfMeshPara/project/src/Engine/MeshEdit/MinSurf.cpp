@@ -87,7 +87,71 @@ bool MinSurf::Run() {
 }
 
 void MinSurf::Minimize() {
-	// TODO
-	cout << "WARNING::MinSurf::Minimize:" << endl
-		<< "\t" << "not implemented" << endl;
+	// TODO	
+	//结点数
+	size_t v_num = heMesh->NumVertices();
+
+	//创建稀疏矩阵三元组
+	vector<Eigen::Triplet<double>> tr_T;
+	
+	//创建待解列向量
+	Eigen::VectorXd b_x(v_num);
+	Eigen::VectorXd b_y(v_num);
+	Eigen::VectorXd b_z(v_num);
+	b_x.setZero();
+	b_y.setZero();
+	b_z.setZero();
+
+
+	//填充T
+	for (size_t i = 0; i < v_num; i++) {
+		auto now_v = heMesh->Vertices()[i];
+		if (!now_v->IsBoundary()) {
+			size_t adj_v_num = now_v->AdjVertices().size();
+			tr_T.push_back(Eigen::Triplet<double>(i, i, adj_v_num));
+			for (size_t j = 0; j < adj_v_num; j++) {
+				auto adj_v = now_v->AdjVertices()[j];
+				if (!adj_v->IsBoundary()) {
+					tr_T.push_back(Eigen::Triplet<double>(i, heMesh->Index(adj_v), -1));
+				}
+				else {
+					b_x(i) += now_v->pos.at(0);
+					b_y(i) += now_v->pos.at(1);
+					b_z(i) += now_v->pos.at(2);
+				}
+			}
+		}
+		else {
+			tr_T.push_back(Eigen::Triplet<double>(i, i, 1));
+			b_x(i) = now_v->pos.at(0);
+			b_y(i) = now_v->pos.at(1);
+			b_z(i) = now_v->pos.at(2);
+		}
+	}
+
+	//LU分解
+	Eigen::SparseMatrix<double> T;
+	T.resize(v_num, v_num);
+	Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
+
+	//填充T矩阵
+	T.setFromTriplets(tr_T.begin(), tr_T.end());
+
+	solver.compute(T);
+
+	Eigen::VectorXd x(v_num);
+	Eigen::VectorXd y(v_num);
+	Eigen::VectorXd z(v_num);
+
+	x = solver.solve(b_x);
+	y = solver.solve(b_y);
+	z = solver.solve(b_z);
+
+
+	for (size_t i = 0; i < v_num; i++)
+	{
+		heMesh->Vertices()[i]->pos.at(0) = x(i);
+		heMesh->Vertices()[i]->pos.at(1) = y(i);
+		heMesh->Vertices()[i]->pos.at(2) = z(i);
+	}
 }
