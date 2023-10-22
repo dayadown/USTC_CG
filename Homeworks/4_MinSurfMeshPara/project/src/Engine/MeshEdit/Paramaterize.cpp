@@ -86,15 +86,14 @@ bool Paramaterize::Run() {
 }
 
 void Paramaterize::Paramater(){
-	fix_Bound();
+	fix_Bound2();
 	Minimize();
 }
 
-//固定边界
-void Paramaterize::fix_Bound() {
+//固定边界(正方形)
+void Paramaterize::fix_Bound1() {
 	size_t n = heMesh->Boundaries()[0].size();
 	double sum_Bound = 0;
-	vector<int> bound_index;
 	for (size_t i = 0; i < n; i++) {
 		auto v_now = heMesh->Boundaries()[0][i];
 		auto p = v_now->Origin();
@@ -133,6 +132,31 @@ void Paramaterize::fix_Bound() {
 	}
 }
 
+//固定边界（圆）
+void Paramaterize::fix_Bound2() {
+	size_t n = heMesh->Boundaries()[0].size();
+	double sum_Bound = 0;
+	for (size_t i = 0; i < n; i++) {
+		auto v_now = heMesh->Boundaries()[0][i];
+		auto p = v_now->Origin();
+		auto q = v_now->End();
+		sum_Bound += get_distance(p, q);
+	}
+	double now_sum = 0;
+	for (size_t i = 0; i < n; i++) {
+		int k = 1;
+		auto v_now = heMesh->Boundaries()[0][i];
+		auto p = v_now->Origin();
+		auto q = v_now->End();
+		int index = heMesh->Index(p);
+		double weigt = now_sum / sum_Bound * PI<double> * 2;
+		now_sum += get_distance(p, q);
+		heMesh->Vertices()[index]->pos.at(0) = cos(weigt);
+		heMesh->Vertices()[index]->pos.at(1) = sin(weigt);
+		heMesh->Vertices()[index]->pos.at(2) = 0;
+	}
+
+}
 
 void Paramaterize::Minimize() {
 	//结点数

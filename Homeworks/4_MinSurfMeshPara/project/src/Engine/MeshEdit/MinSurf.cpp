@@ -154,4 +154,5 @@ void MinSurf::Minimize() {
 		heMesh->Vertices()[i]->pos.at(1) = y(i);
 		heMesh->Vertices()[i]->pos.at(2) = z(i);
 	}
+
 }

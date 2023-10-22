@@ -24,7 +24,8 @@ namespace Ubpa {
 		bool Run();
 
 	private:
-		void fix_Bound();
+		void fix_Bound1();
+		void fix_Bound2();
 		void Minimize();
 		void Paramater();
 
