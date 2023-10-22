@@ -80,13 +80,13 @@ bool Paramaterize::Run() {
 			indice.push_back(static_cast<unsigned>(heMesh->Index(v)));
 	}
 
-	triMesh->Init(indice, positions);
-
+	//triMesh->Init(indice, positions);
+	triMesh->Update(cl);
 	return true;
 }
 
 void Paramaterize::Paramater(){
-	fix_Bound2();
+	fix_Bound1();
 	Minimize();
 }
 
@@ -112,22 +112,22 @@ void Paramaterize::fix_Bound1() {
 		if (weigt >= 0 && weigt < k) {
 			heMesh->Vertices()[index]->pos.at(0) = weigt;
 			heMesh->Vertices()[index]->pos.at(1) = k;
-			heMesh->Vertices()[index]->pos.at(2) = -2;
+			heMesh->Vertices()[index]->pos.at(2) = 0;
 		}
 		else if (weigt >= k && weigt < 2*k) {
 			heMesh->Vertices()[index]->pos.at(0) = k;
 			heMesh->Vertices()[index]->pos.at(1) = 2*k-weigt;
-			heMesh->Vertices()[index]->pos.at(2) = -2;
+			heMesh->Vertices()[index]->pos.at(2) = 0;
 		}
 		else if (weigt >= 2*k && weigt < 3*k) {
 			heMesh->Vertices()[index]->pos.at(0) = 3*k-weigt;
 			heMesh->Vertices()[index]->pos.at(1) = 0;
-			heMesh->Vertices()[index]->pos.at(2) = -2;
+			heMesh->Vertices()[index]->pos.at(2) = 0;
 		}
 		else {
 			heMesh->Vertices()[index]->pos.at(0) = 0;
 			heMesh->Vertices()[index]->pos.at(1) = weigt-3*k;
-			heMesh->Vertices()[index]->pos.at(2) = -2;
+			heMesh->Vertices()[index]->pos.at(2) = 0;
 		}
 	}
 }
@@ -226,6 +226,7 @@ void Paramaterize::Minimize() {
 		heMesh->Vertices()[i]->pos.at(0) = x(i);
 		heMesh->Vertices()[i]->pos.at(1) = y(i);
 		heMesh->Vertices()[i]->pos.at(2) = z(i);
+		cl.push_back(pointf2(x[i],y[i]));
 	}
 }
 

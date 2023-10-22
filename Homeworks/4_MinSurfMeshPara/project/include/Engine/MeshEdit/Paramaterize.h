@@ -46,5 +46,7 @@ namespace Ubpa {
 		const Ptr<HEMesh<V>> heMesh; // vertice order is same with triMesh
 
 		double get_distance(V*,V*);
+
+		std::vector<pointf2> cl;
 	};
 }
