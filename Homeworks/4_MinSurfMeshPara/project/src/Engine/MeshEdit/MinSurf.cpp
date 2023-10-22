@@ -115,9 +115,9 @@ void MinSurf::Minimize() {
 					tr_T.push_back(Eigen::Triplet<double>(i, heMesh->Index(adj_v), -1));
 				}
 				else {
-					b_x(i) += now_v->pos.at(0);
-					b_y(i) += now_v->pos.at(1);
-					b_z(i) += now_v->pos.at(2);
+					b_x(i) += adj_v->pos.at(0);
+					b_y(i) += adj_v->pos.at(1);
+					b_z(i) += adj_v->pos.at(2);
 				}
 			}
 		}
