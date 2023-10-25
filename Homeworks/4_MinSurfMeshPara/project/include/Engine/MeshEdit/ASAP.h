@@ -8,7 +8,6 @@ namespace Ubpa {
 	public:
 		method_ASAP(Ptr<TriMesh> triMesh);
 		~method_ASAP();
-		//void Paramater();
 		bool Paramater();
 	};
 }

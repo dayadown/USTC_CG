@@ -10,6 +10,7 @@
 #include <Engine/MeshEdit/MST.h>
 #include <Engine/MeshEdit/pre_Paramaterize.h>
 #include <Engine/MeshEdit/ASAP.h>
+#include <Engine/MeshEdit/ARAP.h>
 
 #include <Engine/Scene/SObj.h>
 #include <Engine/Scene/AllComponents.h>
@@ -378,6 +379,13 @@ void Attribute::ComponentVisitor::ImplVisit(Ptr<TriMesh> mesh) {
 		pre_Paramaterize* paramaterize = new method_ASAP(mesh);
 		if (paramaterize->Paramater())
 			printf("ASAP done\n");
+		pOGLW->DirtyVAO(mesh);
+	});
+
+	grid->AddButton("ARAP", [mesh, pOGLW = attr->pOGLW]() {
+		pre_Paramaterize* paramaterize = new method_ARAP(mesh);
+		if (paramaterize->Paramater())
+			printf("ARAP done\n");
 		pOGLW->DirtyVAO(mesh);
 	});
 
