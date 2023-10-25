@@ -79,8 +79,10 @@ bool Paramaterize::Run() {
 		for (auto v : f->BoundaryVertice()) // vertices of the triangle
 			indice.push_back(static_cast<unsigned>(heMesh->Index(v)));
 	}
-
+	//更新3D网格
 	//triMesh->Init(indice, positions);
+
+	//只更新纹理坐标
 	triMesh->Update(cl);
 	return true;
 }

@@ -8,6 +8,8 @@
 #include <Engine/MeshEdit/IsotropicRemeshing.h>
 #include <Engine/MeshEdit/ShortestPath.h>
 #include <Engine/MeshEdit/MST.h>
+#include <Engine/MeshEdit/pre_Paramaterize.h>
+#include <Engine/MeshEdit/ASAP.h>
 
 #include <Engine/Scene/SObj.h>
 #include <Engine/Scene/AllComponents.h>
@@ -370,6 +372,15 @@ void Attribute::ComponentVisitor::ImplVisit(Ptr<TriMesh> mesh) {
 			printf("Paramaterize done\n");
 		pOGLW->DirtyVAO(mesh);
 	});
+
+
+	grid->AddButton("ASAP", [mesh, pOGLW = attr->pOGLW]() {
+		pre_Paramaterize* paramaterize = new method_ASAP(mesh);
+		if (paramaterize->Paramater())
+			printf("ASAP done\n");
+		pOGLW->DirtyVAO(mesh);
+	});
+
 
 	grid->AddButton("Isotropic Remeshing", [mesh, pOGLW = attr->pOGLW]() {
 		printf("[Isotropic Remeshing] start\n");
