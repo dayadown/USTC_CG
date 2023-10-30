@@ -40,8 +40,7 @@ bool method_ASAP::Paramater() {
 
 			double r = get_distance(vk, vi) / get_distance(vj, vi);
 			double cos_jik = vecf3::cos_theta(vjj - vii, vkk - vii);
-			double sin_jik = vecf3::sin_theta(vjj - vii, vkk - vii);
-
+			double sin_jik = sqrt(1 - cos_jik * cos_jik);
 			//填充三元组
 			tr_T.push_back(Eigen::Triplet<double>(num, index_i * 2, r * cos_jik - 1));
 			tr_T.push_back(Eigen::Triplet<double>(num, index_i * 2 + 1, -r * sin_jik));
@@ -80,23 +79,22 @@ bool method_ASAP::Paramater() {
 	cout << index_V1<<endl;
 	size_t index_V2 = heMesh->Index(fixed_V2);
 	tr_T.push_back(Eigen::Triplet<double>(num, index_V1 * 2, 1));
-	b(num) = 0;
+	b(num) = fixed_V1->pos.at(0);
 
 	num++;
 
 	tr_T.push_back(Eigen::Triplet<double>(num, index_V1 * 2 + 1, 1));
-	b(num) = 0;
+	b(num) = fixed_V1->pos.at(1);
 
 	num++;
 
 	tr_T.push_back(Eigen::Triplet<double>(num, index_V2 * 2, 1));
-	b(num) = get_distance(fixed_V1, fixed_V2)*10;
-	cout << b(num) << endl;
+	b(num) = fixed_V2->pos.at(0);;
 
 	num++;
 
 	tr_T.push_back(Eigen::Triplet<double>(num, index_V2 * 2 + 1, 1));
-	b(num) = 0;
+	b(num) = fixed_V2->pos.at(1);
 
 
 	//填充T
@@ -133,4 +131,6 @@ bool method_ASAP::Paramater() {
 
 	//只更新纹理坐标
 	//triMesh->Update(cl);
+
+	return true;
 }

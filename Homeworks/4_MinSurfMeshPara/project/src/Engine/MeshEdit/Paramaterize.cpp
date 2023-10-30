@@ -239,3 +239,7 @@ double Paramaterize::get_distance(V* p, V* q) {
 		+ pow(p->pos.at(2) - q->pos.at(2), 2);
 	return sqrt(dis);
 }
+
+std::vector<pointf2> Paramaterize::get_cl() {
+	return cl;
+}

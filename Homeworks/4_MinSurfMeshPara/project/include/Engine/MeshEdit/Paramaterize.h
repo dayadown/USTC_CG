@@ -3,7 +3,8 @@
 #include <Basic/HeapObj.h>
 #include <UHEMesh/HEMesh.h>
 #include <UGM/UGM>
-#include <Eigen/Sparse>
+#include<Eigen/Sparse>
+#include<Eigen/Dense>
 
 namespace Ubpa {
 	class TriMesh;
@@ -48,5 +49,6 @@ namespace Ubpa {
 		double get_distance(V*,V*);
 
 		std::vector<pointf2> cl;
+		std::vector<pointf2> get_cl();
 	};
 }

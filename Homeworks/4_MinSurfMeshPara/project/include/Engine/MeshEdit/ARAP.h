@@ -1,5 +1,6 @@
 #pragma once
 #include <Engine/MeshEdit/pre_Paramaterize.h>
+#include <Engine/MeshEdit/Paramaterize.h>
 namespace Ubpa {
 	class TriMesh;
 	class method_ARAP :
@@ -9,5 +10,7 @@ namespace Ubpa {
 		method_ARAP(Ptr<TriMesh> triMesh);
 		~method_ARAP();
 		bool Paramater();
+
+		Paramaterize* paramaterize;
 	};
 }
