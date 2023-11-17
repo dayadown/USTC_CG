@@ -98,32 +98,32 @@ rgbf PathTracer::Shade(const IntersectorClosest::Rst& intersection, const vecf3&
 	//   normalf n; // normal, normalized
 	//	 vecf3 tangent; // perpendicular to normal, normalized
 	// };
-
-	constexpr rgbf error_color = rgbf{ 1.f,0.f,1.f };
-	constexpr rgbf todo_color = rgbf{ 0.f,1.f,0.f };
-	constexpr rgbf zero_color = rgbf{ 0.f,0.f,0.f };
-
+	constexpr rgbf error_color = rgbf{ 1.f,0.f,0.f };//红
+	constexpr rgbf todo_color = rgbf{ 0.f,1.f,0.f };//绿
+	constexpr rgbf zero_color = rgbf{ 0.f,0.f,0.f };//黑
+	//无交点，打在环境中
 	if (!intersection.IsIntersected()) {
 		if (last_bounce_specular && env_light != nullptr) {
 			// TODO: environment light
 
+			return env_light->Radiance(-wo);
 			return todo_color;
 		}
 		else
 			return zero_color;
 	}
 	
-	if (!intersection.sobj->Get<Cmpt::Material>()) {
+	if (!intersection.sobj->Get<Cmpt::Material>()) {//交点不是物体
 		auto light = intersection.sobj->Get<Cmpt::Light>();
-		if(!light) return error_color;
+		if(!light) return error_color;//交点不是光源
 
 		if (last_bounce_specular) { // avoid double-count
 			auto area_light = dynamic_cast<const AreaLight*>(light->light.get());
 			if (!area_light) return error_color;
 
-			// TODO: area light
-
-			return todo_color;
+			// TODO: area light   done
+			return area_light->Radiance(intersection.uv);
+			return zero_color;
 		}else
 			return zero_color;
 	}
@@ -131,9 +131,11 @@ rgbf PathTracer::Shade(const IntersectorClosest::Rst& intersection, const vecf3&
 	rgbf L_dir{ 0.f };
 	rgbf L_indir{ 0.f };
 
+	//计算交点直接光，即直接从光源积分
 	scene->Each([=, &L_dir](const Cmpt::Light* light, const Cmpt::L2W* l2w, const Cmpt::SObjPtr* ptr) {
 		// TODO: L_dir += ...
 		// - use PathTracer::BRDF to get BRDF value
+		//光源采样
 		SampleLightResult sample_light_rst = SampleLight(intersection, wo, light, l2w, ptr);
 		if (sample_light_rst.pd <= 0)
 			return;
@@ -141,22 +143,50 @@ rgbf PathTracer::Shade(const IntersectorClosest::Rst& intersection, const vecf3&
 			// TODO: L_dir of environment light
 			// - only use SampleLightResult::L, n, pd
 			// - SampleLightResult::x is useless
+			vecf3 wi = -sample_light_rst.n.cast_to<vecf3>();
+			vecf3 intersection_n = intersection.n.cast_to<vecf3>().normalize();
+			rgbf fr = PathTracer::BRDF(intersection, wi.normalize(), wo.normalize());
+			rayf3 r(intersection.pos, wi, EPSILON<float>);
+			int is = IntersectorVisibility::Instance().Visit(&bvh, r);
+			L_dir += fr * sample_light_rst.L * is * abs(intersection_n.dot(wi)) / sample_light_rst.pd;
 		}
 		else {
 			// TODO: L_dir of area light
+			vecf3 wi = sample_light_rst.x - intersection.pos;
+			vecf3 wi_normlize = wi.normalize();
+			vecf3 intersection_n = intersection.n.cast_to<vecf3>().normalize();
+			vecf3 light_n = sample_light_rst.n.cast_to<vecf3>().normalize();
+			float cos1 = intersection_n.dot(wi_normlize);
+			float cos2 = light_n.dot(-wi_normlize);
+			rgbf fr = PathTracer::BRDF(intersection, wi_normlize, wo.normalize());
+			rayf3 r(sample_light_rst.x, -wi, EPSILON<float>, 1 - EPSILON<float>);
+			int is = IntersectorVisibility::Instance().Visit(&bvh, r);
+			float G = cos1 * cos2 / wi.norm() / wi.norm();
+			if (cos1 > 0 && cos2 > 0)
+				L_dir += fr * sample_light_rst.L * G * is / sample_light_rst.pd;
 		}
 	});
-
 	// TODO: Russian Roulette
 	// - rand01<float>() : random in [0, 1)
-
+	if (rand01<float>() > 0.8)//20%的概率不产生间接光
+		return L_dir;
 	// TODO: recursion
 	// - use PathTracer::SampleBRDF to get wi and pd (probability density)
 	// wi may be **under** the surface
 	// - use PathTracer::BRDF to get BRDF value
-
+	auto get_from = PathTracer::SampleBRDF(intersection, wo);
+	vecf3 wi = get<0>(get_from);
+	if (wi.norm() != 0) {
+		float pd = get<1>(get_from);
+		vecf3 wi_normalize = wi.normalize();
+		vecf3 intersection_n = intersection.n.cast_to<vecf3>().normalize();
+		rayf3 r(intersection.pos, wi, EPSILON<float>);
+		rgbf fr = PathTracer::BRDF(intersection, wi_normalize, wo.normalize());
+		rgbf L = Shade(IntersectorClosest::Instance().Visit(&bvh, r), -wi, false);
+		L_indir = fr * L * abs(intersection_n.dot(wi_normalize)) / pd;
+	}
 	// TODO: combine L_dir and L_indir
-
+	return L_dir+L_indir;
 	return todo_color; // you should commemt this line
 }
 
